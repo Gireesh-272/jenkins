@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+
+    environment {
+        MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+                sh './mvnw clean package'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running unit tests...'
+                sh './mvnw test'
+            }
+        }
+
+        stage('Run') {
+            steps {
+                echo 'Running the application...'
+                sh 'java -jar target/demo-1.0.0.jar &'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build, tests, and run were successful!'
+        }
+        failure {
+            echo 'There was a problem with the build, tests, or deployment.'
+        }
+    }
+}
